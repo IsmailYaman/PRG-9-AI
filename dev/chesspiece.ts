@@ -1,12 +1,10 @@
 /// <reference path="gameobject.ts" />
 
-
 abstract class ChessPiece extends GameObject {
-
-    public boardPosition: [number, number];     // position in board-coordinates
+    public boardPosition: [number, number]; // position in board-coordinates
 
     constructor() {
-        super(); 
+        super();
 
         // pieces have same size as tiles
         this.width = Board.getInstance().getTileSize();
@@ -22,10 +20,10 @@ abstract class ChessPiece extends GameObject {
 
     // init position (without animation)
     public initPosition(pos: [number, number]) {
-        this.setPosition(pos); 
+        this.setPosition(pos);
         this.pos = Board.getInstance().boardToScreenPos(this.boardPosition);
     }
 
     // every chess piece should implement which moves it can make
-    public abstract getMoves(from:[number, number]): [number, number][];
+    public abstract getMoves(from: [number, number]): [number, number][];
 }

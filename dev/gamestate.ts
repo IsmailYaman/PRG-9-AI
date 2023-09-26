@@ -19,6 +19,7 @@ class GameState {
 
         // win
         if (this.kingPos[1] == 0) {
+
             return[100, true];
         } 
 

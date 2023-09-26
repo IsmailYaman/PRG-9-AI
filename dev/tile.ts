@@ -1,11 +1,9 @@
 /// <reference path="gameobject.ts" />
 /// <reference path="chesspiece.ts" />
 
-
 class Tile extends ChessPiece {
-
     public constructor() {
-        super()
+        super();
 
         this.width = Board.getInstance().getTileSize();
         this.height = Board.getInstance().getTileSize();
@@ -13,19 +11,18 @@ class Tile extends ChessPiece {
         this.style.backgroundColor = "white";
     }
 
-    public setColor(color:string) {
+    public setColor(color: string) {
         this.style.backgroundColor = color;
     }
 
-    public update(){
-        super.update()
+    public update() {
+        super.update();
     }
 
     public getMoves(): [number, number][] {
-        let moves: [number, number][] = []
+        let moves: [number, number][] = [];
         return moves;
     }
-
 }
 
 window.customElements.define("tile-component", Tile);

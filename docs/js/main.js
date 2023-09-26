@@ -4,7 +4,7 @@ class GameObject extends HTMLElement {
         super();
         this.pos = [0, 0];
         this.targetPos = [0, 0];
-        this.speed = [2, 2];
+        this.speed = [8, 8];
         this.direction = 1;
         this.moving = false;
         document.body.appendChild(this);
@@ -93,7 +93,7 @@ class Board {
         return Board.instance;
     }
     legalPosition(pos) {
-        return (pos[0] >= 0) && (pos[1] >= 0) && (pos[0] < this.BOARD_SIZE) && (pos[1] < this.BOARD_SIZE);
+        return pos[0] >= 0 && pos[1] >= 0 && pos[0] < this.BOARD_SIZE && pos[1] < this.BOARD_SIZE;
     }
     getSize() {
         return this.BOARD_SIZE;
@@ -108,7 +108,7 @@ class Board {
         return [Math.floor(screenPos[0] / this.tileSize), Math.floor(screenPos[1] / this.tileSize)];
     }
     static samePosition(a, b) {
-        return (a[0] == b[0]) && (a[1] == b[1]);
+        return a[0] == b[0] && a[1] == b[1];
     }
 }
 class GameState {
@@ -136,15 +136,21 @@ class Game {
     constructor() {
         this.knights = [];
         this.gameOver = false;
-        this.KNIGHTS = 3;
+        this.KNIGHTS = 5;
         this.playerTurn = true;
         Board.getInstance();
         this.king = new King();
-        this.king.initPosition([Math.floor(Board.getInstance().getSize() / 2), Board.getInstance().getSize() - 1]);
+        this.king.initPosition([
+            Math.floor(Board.getInstance().getSize() / 2),
+            Board.getInstance().getSize() - 1,
+        ]);
         let knightPos = [];
         for (let c = 0; c < this.KNIGHTS; c++) {
             let z = new Knight();
-            let pos = [Math.floor((c / this.KNIGHTS) * Board.getInstance().getSize()), 0];
+            let pos = [
+                Math.floor((c / this.KNIGHTS) * Board.getInstance().getSize()),
+                0,
+            ];
             z.initPosition(pos);
             knightPos.push(pos);
             this.knights.push(z);
@@ -169,7 +175,7 @@ class Game {
                 moving = true;
             }
         }
-        if ((this.playerTurn) && (!moving) && (!this.gameOver)) {
+        if (this.playerTurn && !moving && !this.gameOver) {
             console.log(boardPos);
             let legalMoves = this.king.getMoves();
             for (let m of legalMoves) {
@@ -179,6 +185,7 @@ class Game {
                     this.gameState.kingPos = boardPos;
                     this.playerTurn = false;
                     if (this.gameState.getScore()[1]) {
+                        console.log("You win");
                         this.gameOver = true;
                     }
                 }
@@ -210,7 +217,7 @@ class Knight extends ChessPiece {
         let moves = [];
         for (let i = -2; i < 3; i++) {
             for (let j = -2; j < 3; j++) {
-                if ((Math.abs(i) == Math.abs(j)) || (i == 0) || (j == 0)) {
+                if (Math.abs(i) == Math.abs(j) || i == 0 || j == 0) {
                     continue;
                 }
                 let newPos = [from[0] + i, from[1] + j];
@@ -226,15 +233,57 @@ window.customElements.define("knight-component", Knight);
 class GameAI {
     static moveKnight(king, knights, gameState) {
         let t0 = performance.now();
-        console.log(king);
-        let i = Math.floor(Math.random() * Math.floor(knights.length));
-        let legalMoves = knights[i].getMoves();
-        console.log(legalMoves);
-        let j = Math.floor(Math.random() * Math.floor(legalMoves.length));
-        knights[i].setPosition(legalMoves[j]);
-        gameState.knightPositions[i] = legalMoves[j];
+        const searchdepth = 5;
+        let minEval = +Infinity;
+        let bestMove = [0, 0];
+        let indexKnight = 0;
+        for (let i = 0; i < knights.length; i++) {
+            const KnightlegalMoves = knights[i].getMoves(gameState.knightPositions[i]);
+            for (let move of KnightlegalMoves) {
+                const gamestateCopy = gameState.copy();
+                gamestateCopy.knightPositions[i] = move;
+                const Eval = this.miniMax(gamestateCopy, king, knights, searchdepth - 1, false);
+                if (Eval < minEval) {
+                    minEval = Eval;
+                    bestMove = move;
+                    indexKnight = i;
+                }
+            }
+        }
+        knights[indexKnight].setPosition(bestMove);
+        gameState.knightPositions[indexKnight] = bestMove;
         let t1 = performance.now();
-        console.log("AI move took " + (t1 - t0) + " milliseconds.");
+        console.log("AI move took " + (t1 - t0) + " milliseconds to calculate.");
+    }
+    static miniMax(gameState, king, knights, depth, maximizingPlayer) {
+        const score = gameState.getScore();
+        if (depth === 0 || score[1]) {
+            return score[0];
+        }
+        if (maximizingPlayer) {
+            let maxEval = -Infinity;
+            const gamestateCopy = gameState.copy();
+            const KingLegalMoves = king.getMoves(gamestateCopy.kingPos);
+            for (let move of KingLegalMoves) {
+                gamestateCopy.kingPos = move;
+                const currentEval = this.miniMax(gamestateCopy, king, knights, depth - 1, false);
+                maxEval = Math.max(maxEval, currentEval);
+            }
+            return maxEval;
+        }
+        else {
+            let minEval = Infinity;
+            for (let i = 0; i < knights.length; i++) {
+                const gamestateCopy = gameState.copy();
+                const KnightlegalMoves = knights[i].getMoves(gamestateCopy.knightPositions[i]);
+                for (let move of KnightlegalMoves) {
+                    gamestateCopy.knightPositions[i] = move;
+                    const currentEval = this.miniMax(gamestateCopy, king, knights, depth - 1, true);
+                    minEval = Math.min(minEval, currentEval);
+                }
+            }
+            return minEval;
+        }
     }
 }
 class King extends ChessPiece {
@@ -242,7 +291,7 @@ class King extends ChessPiece {
         let moves = [];
         for (let i = -1; i < 2; i++) {
             for (let j = -1; j < 2; j++) {
-                if ((i == 0) && (j == 0)) {
+                if (i == 0 && j == 0) {
                     continue;
                 }
                 let newPos = [from[0] + i, from[1] + j];
