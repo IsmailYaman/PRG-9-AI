@@ -1,55 +1,52 @@
 /// <reference path="knight.ts" />
 
 class GameAI {
-    // let the AI choose a move, and update both the
-    // knight and the gamestate
-
+    // Laat de AI een zet kiezen en update zowel de koning als de spelstatus.
     public static moveKnight(king: King, knights: Knight[], gameState: GameState) {
-        let t0 = performance.now(); //Start tijd van minimax.
+        let t0 = performance.now(); // Start de timer voor de minimax-algoritme.
 
-        const searchdepth = 5;
-        let minEval = +Infinity;
-        let bestMove: [number, number] = [0, 0]; //Een array met 2 nummers.
-        let indexKnight = 0;
+        const searchDepth = 5; // Diepte van de zoektocht in de boom van mogelijke zetten.
+        let minEval = +Infinity; // Initialiseer de minimale evaluatiewaarde als oneindig positief.
+        let bestMove: [number, number] = [0, 0]; // Een array om de beste zet op te slaan als [rij, kolom].
+        let indexKnight = 0; // Houdt bij welke ridder de beste zet heeft.
 
-        //Loop voor iedere Knight.
+        //Hier worden de berekeningen gedaan voor de AI
+        // Loop door elke ridder.
         for (let i = 0; i < knights.length; i++) {
-            const KnightlegalMoves = knights[i].getMoves(
-                //De legale moves die de knight op de momentele positie kan maken.
-                gameState.knightPositions[i]
+            const knightLegalMoves = knights[i].getMoves(
+                gameState.knightPositions[i] // Legale zetten voor de huidige positie van de ridder.
             );
 
-            //Loop door alle moves van de gekozen knight heen.
-            for (let move of KnightlegalMoves) {
-                //Maak een nep kopie van de gameState (zodat je alle moves niet in het echt doet)
-                const gamestateCopy = gameState.copy();
-                //Voer de gekoze move uit op de gekoze knight in de nep-gamestate.
-                gamestateCopy.knightPositions[i] = move;
+            // Loop door alle mogelijke zetten van de geselecteerde ridder.
+            for (let move of knightLegalMoves) {
+                // Maak een kopie van de huidige spelstatus (zodat de zetten niet feitelijk worden uitgevoerd).
+                const gameStateCopy = gameState.copy();
+                // Voer de geselecteerde zet uit voor de geselecteerde ridder in de gekopieerde spelstatus.
+                gameStateCopy.knightPositions[i] = move;
 
-                //Neem de gekoze positie mee naar de minimax.
-                const Eval = this.miniMax(gamestateCopy, king, knights, searchdepth - 1, false);
-                //Currenteval is altijd nul als je loopt of als je verliest.
-                //Als gereturnde cijfer kleiner is dan +Infinity
-                if (Eval < minEval) {
-                    //De waarde van Infinity veranderd naar de berekende cijfer van de minimax
-                    minEval = Eval;
-                    //De nieuwe bestMove krijgt de waarde van de move met het hoogste cijfer.
+                // Neem de resulterende positie mee in de minimax-berekening.
+                //Word door elke knight berekening geloopd
+                const evaluation = this.miniMax(gameStateCopy, king, knights, searchDepth - 1, false);
+                // Als de evaluatie kleiner is dan de minimale evaluatie tot nu toe.
+                if (evaluation < minEval) {
+                    // Update de minimale evaluatie met de nieuwe waarde.
+                    minEval = evaluation;
+                    // Bewaar de nieuwe beste zet.
                     bestMove = move;
-                    //De indexKnight krijgt de waarde van de beste knight.
+                    // Bewaar de index van de ridder die deze zet heeft gemaakt.
                     indexKnight = i;
                 }
             }
-        }
+    }
 
-        //Play the best chosen move
-        //Zet de positie van de knight met de bestemove.
+        // Voer de beste gekozen zet uit.
         knights[indexKnight].setPosition(bestMove);
-        //Update de gamestate, zodat die weet wat de laatst gedaande move was.
+        // Werk de spelstatus bij zodat deze de laatst gekozen zet kent.
         gameState.knightPositions[indexKnight] = bestMove;
 
-        //Hou bij hoelang het berekenen duurde
+        // Registreer hoe lang het duurde om de zet te berekenen.
         let t1 = performance.now();
-        console.log("AI move took " + (t1 - t0) + " milliseconds to calculate.");
+        console.log("AI-zet duurde " + (t1 - t0) + " milliseconden om te berekenen.");
     }
 
     public static miniMax(
@@ -59,48 +56,48 @@ class GameAI {
         depth: number,
         maximizingPlayer: boolean
     ) {
-        const score = gameState.getScore();
+        const score = gameState.getScore(); // Bepaal de huidige score van het spel.
 
-        //Als depth 0 is of als score false is;
+        // Als de zoekdiepte 0 is of als er een winnende score is bereikt.
         if (depth === 0 || score[1]) {
-            //Als het 1 is dan returned die de boolean "false" of "true", is het spel over in de current positie?
-            return score[0]; //Als het 0 is dan returnd die de eerste score in zijn array
+            // Als diepte 0 is of het spel is afgelopen, retourneer de huidige score.
+            return score[0]; // Als diepte 0 is, retourneer de eerste waarde in de score-array.
         }
 
-        //Kingzet
+        // Zet van de koning.
         if (maximizingPlayer) {
-            let maxEval = -Infinity;
-            const gamestateCopy = gameState.copy();
-            //Haal de huidige situatie van je King op (welke moves kan die zetten?)
-            const KingLegalMoves = king.getMoves(gamestateCopy.kingPos);
+            let maxEval = -Infinity; // Initialiseer de maximale evaluatiewaarde als oneindig negatief.
+            const gameStateCopy = gameState.copy(); // Maak een kopie van de huidige spelstatus.
+            // Haal de mogelijke zetten op voor de koning vanuit de kopie.
+            const kingLegalMoves = king.getMoves(gameStateCopy.kingPos);
 
-            for (let move of KingLegalMoves) {
-                //Loop door alle posities die je kan halen binnen 1 king move.
-                gamestateCopy.kingPos = move; //Doe alsof je de move uitvoerd.
+            for (let move of kingLegalMoves) {
+                // Loop door alle mogelijke posities die de koning kan bereiken met één zet.
+                gameStateCopy.kingPos = move; // Doe alsof de zet wordt uitgevoerd.
 
-                const currentEval = this.miniMax(gamestateCopy, king, knights, depth - 1, false); //0, -100, 100
-                maxEval = Math.max(maxEval, currentEval); //Kies de hoogste nummer
+                const currentEval = this.miniMax(gameStateCopy, king, knights, depth - 1, false); // 0, -100 of 100
+                maxEval = Math.max(maxEval, currentEval); // Kies de hoogste waarde.
             }
-            return maxEval;
+            return maxEval; // Retourneer de maximale evaluatiewaarde.
         }
 
-        //Knight
+        // Zet van de ridders.
         else {
-            let minEval = Infinity;
+            let minEval = Infinity; // Initialiseer de minimale evaluatiewaarde als oneindig positief.
 
             for (let i = 0; i < knights.length; i++) {
-                const gamestateCopy = gameState.copy();
-                const KnightlegalMoves = knights[i].getMoves(gamestateCopy.knightPositions[i]); //Alle moves die de knight in de copy van de gameState kan maken.
+                const gameStateCopy = gameState.copy(); // Maak een kopie van de huidige spelstatus.
+                const knightLegalMoves = knights[i].getMoves(gameStateCopy.knightPositions[i]); // Mogelijke zetten voor de ridder in de kopie.
 
-                for (let move of KnightlegalMoves) {
-                    //Loop door alle moves van die 1ne knight heen.
-                    gamestateCopy.knightPositions[i] = move; //Doe alsof je die move uitvoerd.
+                for (let move of knightLegalMoves) {
+                    // Loop door alle mogelijke zetten van de huidige ridder.
+                    gameStateCopy.knightPositions[i] = move; // Doe alsof de zet wordt uitgevoerd.
 
-                    const currentEval = this.miniMax(gamestateCopy, king, knights, depth - 1, true); //0, -100 of 100
-                    minEval = Math.min(minEval, currentEval); //Kies de laagste nummer
+                    const currentEval = this.miniMax(gameStateCopy, king, knights, depth - 1, true); // 0, -100 of 100
+                    minEval = Math.min(minEval, currentEval); // Kies de laagste waarde.
                 }
             }
-            return minEval;
+            return minEval; // Retourneer de minimale evaluatiewaarde.
         }
     }
 }

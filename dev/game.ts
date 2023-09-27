@@ -9,7 +9,7 @@ class Game {
     private gameOver: boolean = false;
     private gameState: GameState; // current gameState (=position of king and knights)
 
-    private readonly KNIGHTS: number = 5; // number of knights
+    private readonly KNIGHTS: number = 4; // number of knights
 
     private playerTurn: boolean = true; // player has first turn
 
@@ -88,7 +88,6 @@ class Game {
                     // check win
                     if (this.gameState.getScore()[1]) {
                         console.log("You win");
-
                         this.gameOver = true;
                     }
                 }

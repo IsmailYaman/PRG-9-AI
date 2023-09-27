@@ -136,7 +136,7 @@ class Game {
     constructor() {
         this.knights = [];
         this.gameOver = false;
-        this.KNIGHTS = 5;
+        this.KNIGHTS = 4;
         this.playerTurn = true;
         Board.getInstance();
         this.king = new King();
@@ -233,18 +233,18 @@ window.customElements.define("knight-component", Knight);
 class GameAI {
     static moveKnight(king, knights, gameState) {
         let t0 = performance.now();
-        const searchdepth = 5;
+        const searchDepth = 5;
         let minEval = +Infinity;
         let bestMove = [0, 0];
         let indexKnight = 0;
         for (let i = 0; i < knights.length; i++) {
-            const KnightlegalMoves = knights[i].getMoves(gameState.knightPositions[i]);
-            for (let move of KnightlegalMoves) {
-                const gamestateCopy = gameState.copy();
-                gamestateCopy.knightPositions[i] = move;
-                const Eval = this.miniMax(gamestateCopy, king, knights, searchdepth - 1, false);
-                if (Eval < minEval) {
-                    minEval = Eval;
+            const knightLegalMoves = knights[i].getMoves(gameState.knightPositions[i]);
+            for (let move of knightLegalMoves) {
+                const gameStateCopy = gameState.copy();
+                gameStateCopy.knightPositions[i] = move;
+                const evaluation = this.miniMax(gameStateCopy, king, knights, searchDepth - 1, false);
+                if (evaluation < minEval) {
+                    minEval = evaluation;
                     bestMove = move;
                     indexKnight = i;
                 }
@@ -253,7 +253,7 @@ class GameAI {
         knights[indexKnight].setPosition(bestMove);
         gameState.knightPositions[indexKnight] = bestMove;
         let t1 = performance.now();
-        console.log("AI move took " + (t1 - t0) + " milliseconds to calculate.");
+        console.log("AI-zet duurde " + (t1 - t0) + " milliseconden om te berekenen.");
     }
     static miniMax(gameState, king, knights, depth, maximizingPlayer) {
         const score = gameState.getScore();
@@ -262,11 +262,11 @@ class GameAI {
         }
         if (maximizingPlayer) {
             let maxEval = -Infinity;
-            const gamestateCopy = gameState.copy();
-            const KingLegalMoves = king.getMoves(gamestateCopy.kingPos);
-            for (let move of KingLegalMoves) {
-                gamestateCopy.kingPos = move;
-                const currentEval = this.miniMax(gamestateCopy, king, knights, depth - 1, false);
+            const gameStateCopy = gameState.copy();
+            const kingLegalMoves = king.getMoves(gameStateCopy.kingPos);
+            for (let move of kingLegalMoves) {
+                gameStateCopy.kingPos = move;
+                const currentEval = this.miniMax(gameStateCopy, king, knights, depth - 1, false);
                 maxEval = Math.max(maxEval, currentEval);
             }
             return maxEval;
@@ -274,11 +274,11 @@ class GameAI {
         else {
             let minEval = Infinity;
             for (let i = 0; i < knights.length; i++) {
-                const gamestateCopy = gameState.copy();
-                const KnightlegalMoves = knights[i].getMoves(gamestateCopy.knightPositions[i]);
-                for (let move of KnightlegalMoves) {
-                    gamestateCopy.knightPositions[i] = move;
-                    const currentEval = this.miniMax(gamestateCopy, king, knights, depth - 1, true);
+                const gameStateCopy = gameState.copy();
+                const knightLegalMoves = knights[i].getMoves(gameStateCopy.knightPositions[i]);
+                for (let move of knightLegalMoves) {
+                    gameStateCopy.knightPositions[i] = move;
+                    const currentEval = this.miniMax(gameStateCopy, king, knights, depth - 1, true);
                     minEval = Math.min(minEval, currentEval);
                 }
             }
