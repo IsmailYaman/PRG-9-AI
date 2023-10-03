@@ -1,14 +1,14 @@
-# Het verschil tussen traditionele AI en Machine Learning
-AI is het brede concept van het menselijke intelligentie nabootsen, met als doel taken uit te voeren zoals leren en beslissingen nemen. Machine learning is een techniek binnen AI die computers in staat stelt te leren en zichzelf te verbeteren door gegevens te analyseren en deze te gebruiken voor taken zoals beeldherkenning, natuurlijke taalverwerking en aanbevelingssystemen.
+# The difference between traditional AI and Machine Learning
+AI is the broad concept of mimicking human intelligence, with the aim of performing tasks such as learning and decision-making. Machine learning is a technique within AI that enables computers to learn and improve themselves by analyzing data and using it for tasks such as image recognition, natural language processing, and recommendation systems.
 
-# Het verschil tussen Breath First Search en Minimax
+# The difference between Breath First Search and Minimax
 ## Breath First Search
-Deze algoritme kijkt naar de een bepaalde route. Hieronder heb ik een voorbeeld gemaakt. De algoritme begint bij node 1. Vervolgens kijkt die naar welke nodes de buren zijn en daar komt 2 te staan. Die kijkt dan naar waar de buren van 2 zijn en daar zet die 3 enzovoort.
+This algorithm looks at a specific route. I have made an example below. The algorithm starts at node 1. It then looks at which nodes are the neighbors and shows 2. He then looks at where the neighbors of 2 are and puts 3 there and so on.
 ![BFS voorbeeld](bfs.jpg)
 
 ## Minimax
-Deze algoritme kijkt naar elke mogelijke stap die gezet kan worden per beurt. Laten we als voorbeeld boter kaas en eiren gebruiken. X zijn wij en O is de AI. De eerste stap is de begin scenario voor de uitleg. De tweede stap laat zien welke stappen wij kunnen zetten. Bij de eerste optie wint er nog niemand, dus krijgt O een beurt. O heeft dan 2 keuzes waarbij die of wint of verliest.
+This algorithm looks at every possible step that can be taken per turn. Let's use tic-tac-toe as an example. X is the player and O is the AI. The first step is the starting scenario for the explanation. The second step shows what steps we can take. With the first option, no one wins yet, so O gets a turn. O then has 2 choices where he either wins or loses.
 ![Minimax voorbeeld](minimax.jpg)
 
-# De tijd-complexiteit van een zoekalgoritme
-De tijdcomplexiteit van een alogirtme verwijst naar de mate waarin de rekentijd toeneemt naar mate de groote van de taak. Je wilt niet dat een algoritme oneindig stappen vooruitkijkt, maar een aantal stappen.
+# The time complexity of a search algorithm
+The time complexity of an algorithm refers to the extent to which the computation time increases as the size of the task increases. You don't want an algorithm to look infinite steps ahead, but a number of steps.
