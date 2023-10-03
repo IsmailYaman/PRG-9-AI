@@ -12,3 +12,5 @@ This algorithm looks at every possible step that can be taken per turn. Let's us
 
 # The time complexity of a search algorithm
 The time complexity of an algorithm refers to the extent to which the computation time increases as the size of the task increases. You don't want an algorithm to look infinite steps ahead, but a number of steps.
+
+[Try it here](https://ismailyaman.github.io/minimax-example/)
